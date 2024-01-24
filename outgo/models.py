@@ -49,9 +49,10 @@ class EmployeeKind(models.Model):
 class SheetItem(models.Model):
     item_name = models.CharField(verbose_name="Название пункта", max_length=255)
     order = models.IntegerField(verbose_name="Порядковый номер", default=0)
+    sign = models.IntegerField(verbose_name="+/-", default=1)
 
     def __str__(self):
-        return self.item_name
+        return self.item_name + ' ' + str(self.sign)
 
     class Meta:
         ordering = ('id',)
@@ -91,7 +92,7 @@ class Outgo(models.Model):
     outgo = models.ForeignKey(OutgoData, verbose_name="Расход", on_delete=models.CASCADE)
     sheet_item = models.ForeignKey(SheetItem, verbose_name="Пункт расхода", on_delete=models.CASCADE)
     employee_kind = models.ForeignKey(EmployeeKind, verbose_name="Вид сотрудника", on_delete=models.CASCADE)
-    is_decreased = models.BooleanField(verbose_name="Является расходом", default=False)
+    # sigh = models.IntegerField(verbose_name="+/-", default=1)
     count = models.IntegerField(verbose_name="Количество", default=0)
     description = models.TextField(verbose_name="Фамилии", blank=True, null=True)
 

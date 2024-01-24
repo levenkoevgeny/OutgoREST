@@ -8,6 +8,7 @@ from rest_framework.decorators import api_view, permission_classes, action
 
 from jose import jwt
 from django.conf import settings
+from django.db import transaction
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -69,6 +70,31 @@ class OutgoDataViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     filterset_fields = {'owner': ['exact'], 'outgo_date': ['lte', 'gte'],
                         }
+
+    @action(detail=False, methods=['post'])
+    @transaction.atomic
+    def save_full_outgo(self, request):
+        serializer = OutgoDataSerializer(data=request.data)
+        if serializer.is_valid():
+            outgoData = serializer.save()
+            for shItem in SheetItem.objects.all():
+                for emlKind in EmployeeKind.objects.all():
+                    new_outgo = Outgo(outgo=outgoData, sheet_item=shItem, employee_kind=emlKind)
+                    new_outgo.save()
+
+                    if 'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_count' in request.data:
+                        count = request.data['item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_count']
+                        if count != '' and count != 0:
+                            new_outgo.count = int(count) * shItem.sign
+                            new_outgo.save()
+                    if 'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_description' in request.data:
+                        description = request.data['item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_description']
+                        new_outgo.description = description
+                        new_outgo.save()
+            return Response(status=status.HTTP_201_CREATED)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
     def destroy(self, *args, **kwargs):
         serializer = self.get_serializer(self.get_object())
