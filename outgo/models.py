@@ -50,6 +50,7 @@ class SheetItem(models.Model):
     item_name = models.CharField(verbose_name="Название пункта", max_length=255)
     order = models.IntegerField(verbose_name="Порядковый номер", default=0)
     sign = models.IntegerField(verbose_name="+/-", default=1)
+    # is_required = models.BooleanField(verbose_name="Обязательное поле", default=True)
 
     def __str__(self):
         return self.item_name + ' ' + str(self.sign)
@@ -83,7 +84,7 @@ class OutgoData(models.Model):
         return str(self.outgo_date) + ' ' + str(self.subdivision) + ' ' + str(self.kind)
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('-outgo_date',)
         verbose_name = 'Расход'
         verbose_name_plural = 'Расходы'
 
@@ -92,7 +93,6 @@ class Outgo(models.Model):
     outgo = models.ForeignKey(OutgoData, verbose_name="Расход", on_delete=models.CASCADE)
     sheet_item = models.ForeignKey(SheetItem, verbose_name="Пункт расхода", on_delete=models.CASCADE)
     employee_kind = models.ForeignKey(EmployeeKind, verbose_name="Вид сотрудника", on_delete=models.CASCADE)
-    # sigh = models.IntegerField(verbose_name="+/-", default=1)
     count = models.IntegerField(verbose_name="Количество", default=0)
     description = models.TextField(verbose_name="Фамилии", blank=True, null=True)
 
