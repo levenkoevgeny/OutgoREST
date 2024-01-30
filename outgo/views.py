@@ -98,6 +98,7 @@ class OutgoDataViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['put'])
     @transaction.atomic
     def update_full_outgo(self, request, pk=None):
+        print('ggg', request.data)
         outgo_data = self.get_object()
         serializer = OutgoDataSerializer(data=request.data)
         if serializer.is_valid():
@@ -112,7 +113,7 @@ class OutgoDataViewSet(viewsets.ModelViewSet):
                         outgo = qs.first()
                         if 'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_count' in request.data:
                             count = request.data['item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_count']
-                            if count != '' and count != 0:
+                            if count != '':
                                 outgo.count = int(count)
                                 outgo.save()
                         if 'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_description' in request.data:
@@ -121,8 +122,8 @@ class OutgoDataViewSet(viewsets.ModelViewSet):
                             outgo.description = description
                             outgo.save()
                     else:
-                        return Response(status=status.HTTP_404_NOT_FOUND)
-                return Response(status=status.HTTP_201_CREATED)
+                        pass
+            return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -133,7 +134,7 @@ class OutgoDataViewSet(viewsets.ModelViewSet):
         copy_outgo_data = OutgoData(kind=outgo_data.kind, owner=outgo_data.owner, subdivision=outgo_data.subdivision,
                                     outgo_date=outgo_data.outgo_date)
         copy_outgo_data.save()
-        for item in Outgo.objects.all():
+        for item in Outgo.objects.filter(outgo=outgo_data):
             Outgo.objects.create(outgo=copy_outgo_data, sheet_item=item.sheet_item, employee_kind=item.employee_kind,
                                  count=item.count, description=item.description)
         return Response(OutgoDataSerializer(copy_outgo_data).data, status=status.HTTP_201_CREATED)
@@ -149,7 +150,6 @@ class OutgoViewSet(viewsets.ModelViewSet):
     serializer_class = OutgoSerializer
     filterset_fields = {'outgo': ['exact', 'in']
                         }
-
 
     def destroy(self, *args, **kwargs):
         serializer = self.get_serializer(self.get_object())
