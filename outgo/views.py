@@ -22,7 +22,12 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
 
 class SubdivisionViewSet(viewsets.ModelViewSet):
-    queryset = Subdivision.objects.all()
+    def get_queryset(self):
+        current_user = self.request.user
+        if current_user.is_staff:
+            return Subdivision.objects.all()
+        else:
+            return Subdivision.objects.filter(user=current_user)
     serializer_class = SubdivisionSerializer
     permission_classes = [permissions.IsAuthenticated]
     filterset_fields = {'user': ['exact'],
@@ -65,10 +70,16 @@ class OutgoKindViewSet(viewsets.ModelViewSet):
 
 
 class OutgoDataViewSet(viewsets.ModelViewSet):
-    queryset = OutgoData.objects.all()
+    def get_queryset(self):
+        current_user = self.request.user
+        if current_user.is_staff:
+            return OutgoData.objects.all()
+        else:
+            return OutgoData.objects.filter(subdivision__user=current_user)
+
     serializer_class = OutgoDataSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filterset_fields = {'owner': ['exact'], 'kind': ['exact'], 'outgo_date': ['lte', 'gte', 'exact'],
+    filterset_fields = {'subdivision': ['exact'], 'kind': ['exact'], 'outgo_date': ['lte', 'gte', 'exact'],
                         }
 
     @action(detail=False, methods=['post'])
@@ -98,7 +109,6 @@ class OutgoDataViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['put'])
     @transaction.atomic
     def update_full_outgo(self, request, pk=None):
-        print('ggg', request.data)
         outgo_data = self.get_object()
         serializer = OutgoDataSerializer(data=request.data)
         if serializer.is_valid():

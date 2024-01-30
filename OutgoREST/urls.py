@@ -14,12 +14,12 @@ from outgo import views as outgo_views
 
 router = routers.DefaultRouter()
 router.register(r'users', outgo_views.CustomUserViewSet)
-router.register(r'subdivisions', outgo_views.SubdivisionViewSet)
+router.register(r'subdivisions', outgo_views.SubdivisionViewSet, basename='subdivisions')
 router.register(r'employee-kinds', outgo_views.EmployeeKindViewSet)
 router.register(r'sheet-items', outgo_views.SheetItemViewSet)
 router.register(r'outgo-kinds', outgo_views.OutgoKindViewSet)
 router.register(r'outgo', outgo_views.OutgoViewSet)
-router.register(r'outgo-data', outgo_views.OutgoDataViewSet)
+router.register(r'outgo-data', outgo_views.OutgoDataViewSet, basename='outgo-data')
 
 urlpatterns = [
     path('', RedirectView.as_view(url='/api')),
