@@ -23,7 +23,7 @@ class Subdivision(models.Model):
     subdivision_short_name = models.CharField(verbose_name="Название подразделения (короткое)", max_length=100,
                                               blank=True, null=True)
     employee_count = models.IntegerField(verbose_name="Количество сотрудников (по списку)", blank=True, null=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="Пользователь (владелец)")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="Пользователь (владелец)", blank=True, null=True)
 
     def __str__(self):
         return self.subdivision_name

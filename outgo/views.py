@@ -2,7 +2,7 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
 from .models import CustomUser, Subdivision, EmployeeKind, SheetItem, OutgoKind, OutgoData, Outgo
 from .serializers import CustomUserSerializer, SubdivisionSerializer, EmployeeKindSerializer, SheetItemSerializer, \
-    OutgoKindSerializer, OutgoDataSerializer, OutgoSerializer
+    OutgoKindSerializer, OutgoDataSerializer, OutgoSerializer, ChangePasswordSerializer, UserNamesSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, action
 
@@ -14,6 +14,24 @@ from django.db import transaction
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filterset_fields = {'username': ['icontains'],
+                        'last_name': ['icontains'],
+                        'is_staff': ['exact'],
+                        'is_active': ['exact'],
+                        }
+
+    @action(detail=True, methods=['post'])
+    def set_password(self, request, pk=None):
+        user = self.get_object()
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user.set_password(serializer.validated_data['password'])
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, *args, **kwargs):
         serializer = self.get_serializer(self.get_object())
@@ -28,9 +46,10 @@ class SubdivisionViewSet(viewsets.ModelViewSet):
             return Subdivision.objects.all()
         else:
             return Subdivision.objects.filter(user=current_user)
+
     serializer_class = SubdivisionSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filterset_fields = {'user': ['exact'],
+    filterset_fields = {'subdivision_name': ['icontains'], 'user': ['exact'],
                         }
 
     def destroy(self, *args, **kwargs):
@@ -183,3 +202,23 @@ def get_me(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
     except Exception:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def user_registration(request):
+    serializer = CustomUserSerializer(data=request.data)
+    if serializer.is_valid():
+        validated_data = serializer.validated_data
+        validated_data['is_active'] = True
+        CustomUser.objects.create_user(**validated_data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+
+class UserNamesViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserNamesSerializer
+    filterset_fields = {
+        'username': ['exact'],
+    }

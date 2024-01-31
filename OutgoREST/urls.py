@@ -20,10 +20,12 @@ router.register(r'sheet-items', outgo_views.SheetItemViewSet)
 router.register(r'outgo-kinds', outgo_views.OutgoKindViewSet)
 router.register(r'outgo', outgo_views.OutgoViewSet)
 router.register(r'outgo-data', outgo_views.OutgoDataViewSet, basename='outgo-data')
+router.register(r'usernames', outgo_views.UserNamesViewSet)
 
 urlpatterns = [
     path('', RedirectView.as_view(url='/api')),
     path('api/users/me/', outgo_views.get_me),
+    path('api/users/user-registration/', outgo_views.user_registration),
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
