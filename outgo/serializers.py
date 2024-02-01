@@ -19,8 +19,21 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return CustomUser.objects.create_user(**validated_data)
 
 
+class CustomUserSerializerWithoutPassword(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username',
+                  'is_staff',
+                  'first_name',
+                  'last_name',
+                  'is_active',
+                  'date_joined',
+                  'last_login',
+                  ]
+
+
 class SubdivisionSerializer(serializers.ModelSerializer):
-    user_data = CustomUserSerializer(read_only=True, source='user')
+    user_data = CustomUserSerializerWithoutPassword(read_only=True, source='user')
     class Meta:
         model = Subdivision
         fields = ['id', 'subdivision_name', 'subdivision_short_name', 'user', 'user_data']

@@ -116,6 +116,18 @@ DATABASES = {
     }
 }
 
+DATABASES_deploy = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'OPTIONS': {
+            'host': 'localhost',
+            'database': 'outgo',
+            'user': 'levenko',
+            'password': 'Lolita71v!',
+        }
+    }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
