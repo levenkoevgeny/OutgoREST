@@ -120,10 +120,11 @@ DATABASES_deploy = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'host': 'localhost',
-            'database': 'outgo',
-            'user': 'levenko',
-            'password': 'Lolita71v!',
+            "read_default_file": "/etc/mysql/my.cnf",
+            # 'host': 'localhost',
+            # 'database': 'outgo',
+            # 'user': 'levenko',
+            # 'password': 'Lolita71v!',
         }
     }
 }
