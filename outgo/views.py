@@ -116,11 +116,14 @@ class OutgoDataViewSet(viewsets.ModelViewSet):
                         if count != '' and count != 0:
                             new_outgo.count = int(count)
                             new_outgo.save()
-                    if 'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_description' in request.data:
-                        description = request.data[
-                            'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_description']
-                        new_outgo.description = description
-                        new_outgo.save()
+                            if 'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_description' in request.data:
+                                description = request.data[
+                                    'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_description']
+                                new_outgo.description = description
+                                new_outgo.save()
+                        else:
+                            new_outgo.description = ''
+                            new_outgo.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -142,14 +145,18 @@ class OutgoDataViewSet(viewsets.ModelViewSet):
                         outgo = qs.first()
                         if 'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_count' in request.data:
                             count = request.data['item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_count']
-                            if count != '':
+                            if count != '' and count != 0:
                                 outgo.count = int(count)
                                 outgo.save()
-                        if 'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_description' in request.data:
-                            description = request.data[
-                                'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_description']
-                            outgo.description = description
-                            outgo.save()
+                                if 'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_description' in request.data:
+                                    description = request.data[
+                                        'item_' + str(shItem.id) + '_kind_' + str(emlKind.id) + '_description']
+                                    outgo.description = description
+                                    outgo.save()
+                            else:
+                                outgo.count = 0
+                                outgo.description = ''
+                                outgo.save()
                     else:
                         pass
             return Response(status=status.HTTP_201_CREATED)
